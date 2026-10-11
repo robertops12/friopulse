@@ -1,0 +1,768 @@
+<!DOCTYPE html>
+<html lang="es" class="scroll-smooth">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>FríoPulse | Monitorización IoT de cámaras frigoríficas para hostelería</title>
+  <meta name="description" content="FríoPulse evita pérdidas de género por averías de frío. Alertas instantáneas al móvil, informes sanitarios APPCC e instalación limpia sin alterar garantías. Para hostelería y sanidad." />
+  <meta name="keywords" content="monitorización frigorífica, IoT hostelería, alertas temperatura, APPCC, cámaras frigoríficas, congeladores, B2B" />
+  <meta name="author" content="FríoPulse" />
+  <meta name="theme-color" content="#020617" />
+
+  <!-- Open Graph -->
+  <meta property="og:type" content="website" />
+  <meta property="og:title" content="FríoPulse | Evita pérdidas de género por averías de frío" />
+  <meta property="og:description" content="Monitorización IoT 24/7 de cámaras frigoríficas y congeladores. Alertas en tiempo real, informes APPCC e instalación limpia." />
+  <meta property="og:locale" content="es_ES" />
+
+  <!-- Favicon (SVG inline) -->
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%23020617'/%3E%3Cpath d='M7 20 L12 12 L16 18 L20 9 L25 20' fill='none' stroke='%2306b6d4' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E" />
+
+  <!-- Tailwind CSS (CDN) -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              50: '#ecfeff',
+              100: '#cffafe',
+              200: '#a5f3fc',
+              300: '#67e8f9',
+              400: '#22d3ee',
+              500: '#06b6d4',
+              600: '#0891b2',
+              700: '#0e7490',
+              800: '#155e75',
+              900: '#164e63'
+            }
+          },
+          fontFamily: {
+            sans: ['Inter', 'ui-sans-serif', 'system-ui', 'sans-serif']
+          },
+          keyframes: {
+            'pulse-ring': {
+              '0%': { transform: 'scale(.8)', opacity: '.7' },
+              '80%,100%': { transform: 'scale(2)', opacity: '0' }
+            },
+            'float': {
+              '0%,100%': { transform: 'translateY(0)' },
+              '50%': { transform: 'translateY(-8px)' }
+            }
+          },
+          animation: {
+            'pulse-ring': 'pulse-ring 2s cubic-bezier(.4,0,.6,1) infinite',
+            'float': 'float 6s ease-in-out infinite'
+          }
+        }
+      }
+    }
+  </script>
+
+  <!-- Fuente Inter -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet" />
+
+  <style>
+    body { font-family: 'Inter', ui-sans-serif, system-ui, sans-serif; }
+    ::selection { background: #06b6d4; color: #020617; }
+    /* Grid decorativo de fondo */
+    .bg-grid {
+      background-image:
+        linear-gradient(to right, rgba(148,163,184,.07) 1px, transparent 1px),
+        linear-gradient(to bottom, rgba(148,163,184,.07) 1px, transparent 1px);
+      background-size: 48px 48px;
+    }
+    /* Reveal on scroll */
+    .reveal { opacity: 0; transform: translateY(24px); transition: opacity .7s ease, transform .7s ease; }
+    .reveal.is-visible { opacity: 1; transform: none; }
+    /* Scrollbar sutil */
+    ::-webkit-scrollbar { width: 10px; height: 10px; }
+    ::-webkit-scrollbar-track { background: #020617; }
+    ::-webkit-scrollbar-thumb { background: #1e293b; border-radius: 9999px; }
+    ::-webkit-scrollbar-thumb:hover { background: #334155; }
+    html { -webkit-tap-highlight-color: transparent; }
+  </style>
+</head>
+
+<body class="bg-slate-950 text-slate-300 antialiased selection:bg-cyan-500/30">
+
+  <!-- ============ NAVBAR ============ -->
+  <header id="navbar" class="fixed top-0 inset-x-0 z-50 transition-all duration-300 border-b border-transparent">
+    <nav class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+      <div class="flex h-16 sm:h-20 items-center justify-between">
+
+        <!-- Logo -->
+        <a href="#inicio" class="flex items-center gap-2.5 group">
+          <span class="relative grid h-10 w-10 place-items-center rounded-xl bg-gradient-to-br from-cyan-400 to-emerald-500 shadow-lg shadow-cyan-500/20">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-slate-950" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M3 15 L7 8 L11 14 L15 5 L21 15" />
+            </svg>
+          </span>
+          <span class="text-xl font-extrabold tracking-tight text-white">
+            Frío<span class="text-cyan-400">Pulse</span>
+          </span>
+        </a>
+
+        <!-- Enlaces desktop -->
+        <div class="hidden lg:flex items-center gap-1">
+          <a href="#como-funciona" class="rounded-lg px-4 py-2 text-sm font-medium text-slate-300 transition hover:bg-white/5 hover:text-white">Cómo funciona</a>
+          <a href="#beneficios" class="rounded-lg px-4 py-2 text-sm font-medium text-slate-300 transition hover:bg-white/5 hover:text-white">Beneficios</a>
+          <a href="#precios" class="rounded-lg px-4 py-2 text-sm font-medium text-slate-300 transition hover:bg-white/5 hover:text-white">Precios</a>
+          <a href="#contacto" class="rounded-lg px-4 py-2 text-sm font-medium text-slate-300 transition hover:bg-white/5 hover:text-white">Contacto</a>
+        </div>
+
+        <!-- CTA + Hamburger -->
+        <div class="flex items-center gap-3">
+          <a href="#contacto" class="hidden sm:inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-cyan-500 to-emerald-500 px-5 py-2.5 text-sm font-semibold text-slate-950 shadow-lg shadow-cyan-500/20 transition hover:shadow-cyan-500/40 hover:brightness-110 focus:outline-none focus:ring-2 focus:ring-cyan-400 focus:ring-offset-2 focus:ring-offset-slate-950">
+            Solicitar Demo
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+          </a>
+          <button id="menu-btn" type="button" aria-label="Abrir menú" aria-expanded="false" class="lg:hidden inline-flex h-10 w-10 items-center justify-center rounded-lg border border-white/10 bg-white/5 text-slate-200 transition hover:bg-white/10">
+            <svg id="icon-open" xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
+            <svg id="icon-close" xmlns="http://www.w3.org/2000/svg" class="hidden h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg>
+          </button>
+        </div>
+      </div>
+
+      <!-- Menú móvil -->
+      <div id="mobile-menu" class="lg:hidden hidden pb-4">
+        <div class="mx-1 mt-2 space-y-1 rounded-2xl border border-white/10 bg-slate-900/95 p-3 backdrop-blur">
+          <a href="#como-funciona" class="block rounded-lg px-4 py-3 text-sm font-medium text-slate-200 transition hover:bg-white/5">Cómo funciona</a>
+          <a href="#beneficios" class="block rounded-lg px-4 py-3 text-sm font-medium text-slate-200 transition hover:bg-white/5">Beneficios</a>
+          <a href="#precios" class="block rounded-lg px-4 py-3 text-sm font-medium text-slate-200 transition hover:bg-white/5">Precios</a>
+          <a href="#contacto" class="block rounded-lg px-4 py-3 text-sm font-medium text-slate-200 transition hover:bg-white/5">Contacto</a>
+          <a href="#contacto" class="mt-1 block rounded-lg bg-gradient-to-r from-cyan-500 to-emerald-500 px-4 py-3 text-center text-sm font-semibold text-slate-950">Solicitar Demo</a>
+        </div>
+      </div>
+    </nav>
+  </header>
+
+  <main>
+    <!-- ============ HERO ============ -->
+    <section id="inicio" class="relative overflow-hidden pt-28 sm:pt-36 pb-20 sm:pb-28 bg-grid">
+      <!-- Resplandores -->
+      <div class="pointer-events-none absolute -top-40 -left-40 h-[32rem] w-[32rem] rounded-full bg-cyan-500/20 blur-[120px]"></div>
+      <div class="pointer-events-none absolute top-20 -right-40 h-[32rem] w-[32rem] rounded-full bg-emerald-500/20 blur-[120px]"></div>
+      <div class="pointer-events-none absolute inset-x-0 bottom-0 h-40 bg-gradient-to-t from-slate-950 to-transparent"></div>
+
+      <div class="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+        <div class="grid items-center gap-12 lg:grid-cols-2 lg:gap-8">
+
+          <!-- Copy -->
+          <div class="reveal text-center lg:text-left">
+            <span class="inline-flex items-center gap-2 rounded-full border border-cyan-500/30 bg-cyan-500/10 px-3.5 py-1.5 text-xs font-semibold uppercase tracking-wider text-cyan-300">
+              <span class="relative flex h-2 w-2">
+                <span class="absolute inline-flex h-full w-full animate-ping rounded-full bg-cyan-400 opacity-75"></span>
+                <span class="relative inline-flex h-2 w-2 rounded-full bg-cyan-400"></span>
+              </span>
+              Monitorización IoT 24/7
+            </span>
+
+            <h1 class="mt-6 text-4xl font-extrabold leading-[1.08] tracking-tight text-white sm:text-5xl lg:text-6xl">
+              Evita perder miles de euros
+              <span class="bg-gradient-to-r from-cyan-400 to-emerald-400 bg-clip-text text-transparent"> por una avería de frío</span>
+            </h1>
+
+            <p class="mx-auto mt-6 max-w-xl text-lg leading-relaxed text-slate-400 lg:mx-0">
+              FríoPulse vigila la temperatura de tus cámaras frigoríficas y congeladores en tiempo real.
+              Si algo falla, <strong class="font-semibold text-slate-200">te avisa al móvil al instante</strong> para que salves el género antes de que sea tarde.
+            </p>
+
+            <div class="mt-9 flex flex-col items-center gap-3 sm:flex-row lg:justify-start">
+              <a href="#contacto" class="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-cyan-500 to-emerald-500 px-7 py-4 text-base font-semibold text-slate-950 shadow-xl shadow-cyan-500/25 transition hover:shadow-cyan-500/40 hover:brightness-110 sm:w-auto">
+                Solicitar Demo Gratis
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+              </a>
+              <a href="#como-funciona" class="inline-flex w-full items-center justify-center gap-2 rounded-xl border border-white/10 bg-white/5 px-7 py-4 text-base font-semibold text-slate-200 transition hover:bg-white/10 sm:w-auto">
+                Ver cómo funciona
+              </a>
+            </div>
+
+            <!-- Estadísticas -->
+            <dl class="mt-12 grid grid-cols-3 gap-4 border-t border-white/10 pt-8">
+              <div>
+                <dt class="text-2xl font-extrabold text-white sm:text-3xl">-92%</dt>
+                <dd class="mt-1 text-xs font-medium text-slate-400 sm:text-sm">Pérdidas de género</dd>
+              </div>
+              <div>
+                <dt class="text-2xl font-extrabold text-white sm:text-3xl">60 s</dt>
+                <dd class="mt-1 text-xs font-medium text-slate-400 sm:text-sm">Aviso al móvil</dd>
+              </div>
+              <div>
+                <dt class="text-2xl font-extrabold text-white sm:text-3xl">24/7</dt>
+                <dd class="mt-1 text-xs font-medium text-slate-400 sm:text-sm">Vigilancia continua</dd>
+              </div>
+            </dl>
+          </div>
+
+          <!-- Visual: tarjeta de alerta -->
+          <div class="reveal relative mx-auto w-full max-w-md lg:max-w-none">
+            <div class="relative rounded-3xl border border-white/10 bg-slate-900/70 p-6 shadow-2xl shadow-black/50 backdrop-blur">
+              <div class="flex items-center justify-between">
+                <div class="flex items-center gap-2 text-sm font-semibold text-slate-200">
+                  <span class="h-2.5 w-2.5 rounded-full bg-red-500"></span>
+                  Alerta de temperatura
+                </div>
+                <span class="text-xs text-slate-500">hace 12 s</span>
+              </div>
+
+              <div class="mt-5 rounded-2xl border border-red-500/20 bg-red-500/5 p-5">
+                <div class="flex items-baseline gap-2">
+                  <span class="text-5xl font-extrabold tracking-tight text-red-400">+9,4</span>
+                  <span class="text-xl font-semibold text-red-400/80">°C</span>
+                </div>
+                <p class="mt-1 text-sm text-slate-400">Cámara 01 · Cocina principal</p>
+                <p class="mt-3 text-sm text-slate-300">Temperatura por encima del límite crítico (4 °C). <span class="font-semibold text-red-300">Actúa ahora.</span></p>
+              </div>
+
+              <div class="mt-4 space-y-3">
+                <div class="flex items-center justify-between rounded-xl border border-white/5 bg-white/5 px-4 py-3">
+                  <span class="text-sm text-slate-300">Congelador 02</span>
+                  <span class="inline-flex items-center gap-1.5 text-sm font-semibold text-emerald-400">
+                    <span class="h-2 w-2 rounded-full bg-emerald-400"></span>-18,6 °C
+                  </span>
+                </div>
+                <div class="flex items-center justify-between rounded-xl border border-white/5 bg-white/5 px-4 py-3">
+                  <span class="text-sm text-slate-300">Cámara 03 (Bodega)</span>
+                  <span class="inline-flex items-center gap-1.5 text-sm font-semibold text-emerald-400">
+                    <span class="h-2 w-2 rounded-full bg-emerald-400"></span>2,1 °C
+                  </span>
+                </div>
+              </div>
+
+              <div class="mt-5 flex items-center gap-3 rounded-2xl border border-cyan-500/20 bg-gradient-to-r from-cyan-500/10 to-emerald-500/10 px-4 py-3">
+                <span class="relative grid h-9 w-9 shrink-0 place-items-center rounded-full bg-cyan-500/20">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-cyan-300" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/></svg>
+                  <span class="absolute inset-0 animate-pulse-ring rounded-full bg-cyan-400/40"></span>
+                </span>
+                <p class="text-sm text-slate-200">Notificación enviada a <span class="font-semibold text-white">Carlos (gerente)</span></p>
+              </div>
+            </div>
+
+            <!-- Etiqueta flotante -->
+            <div class="absolute -bottom-5 -left-4 hidden animate-float rounded-2xl border border-white/10 bg-slate-900/90 px-4 py-3 shadow-xl backdrop-blur sm:block">
+              <p class="text-xs font-medium text-slate-400">Género salvado hoy</p>
+              <p class="text-lg font-extrabold text-emerald-400">1.840 €</p>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ CÓMO FUNCIONA ============ -->
+    <section id="como-funciona" class="relative border-t border-white/5 bg-slate-950 py-20 sm:py-28">
+      <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+        <div class="reveal mx-auto max-w-3xl text-center">
+          <span class="text-sm font-semibold uppercase tracking-widest text-cyan-400">Cómo funciona</span>
+          <h2 class="mt-4 text-3xl font-extrabold tracking-tight text-white sm:text-4xl">
+            De la avería a la alerta en tu móvil en 3 pasos
+          </h2>
+          <p class="mt-4 text-lg text-slate-400">
+            Sin cables complicados ni obras. Un sensor, una nube y tus datos siempre a salvo.
+          </p>
+        </div>
+
+        <div class="relative mt-16">
+          <!-- Línea conectora (desktop) -->
+          <div class="pointer-events-none absolute left-0 right-0 top-10 hidden h-px bg-gradient-to-r from-transparent via-cyan-500/40 to-transparent lg:block"></div>
+
+          <ol class="grid gap-8 lg:grid-cols-3 lg:gap-6">
+
+            <!-- Paso 1 -->
+            <li class="reveal relative">
+              <div class="flex flex-col items-center text-center lg:items-center">
+                <div class="relative z-10 grid h-20 w-20 place-items-center rounded-2xl border border-white/10 bg-slate-900 shadow-lg">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-9 w-9 text-red-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><path d="M12 9v4M12 17h.01"/></svg>
+                  <span class="absolute -right-2 -top-2 grid h-7 w-7 place-items-center rounded-full bg-gradient-to-br from-cyan-400 to-emerald-500 text-sm font-bold text-slate-950">1</span>
+                </div>
+                <h3 class="mt-6 text-xl font-bold text-white">El compresor falla o sube la temperatura</h3>
+                <p class="mt-3 text-slate-400">
+                  Una avería eléctrica, una puerta mal cerrada o un gas refrigerante bajo hacen que la cámara se caliente.
+                  FríoPulse lo detecta al segundo.
+                </p>
+              </div>
+            </li>
+
+            <!-- Paso 2 -->
+            <li class="reveal relative">
+              <div class="flex flex-col items-center text-center">
+                <div class="relative z-10 grid h-20 w-20 place-items-center rounded-2xl border border-white/10 bg-slate-900 shadow-lg">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-9 w-9 text-cyan-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.55a11 11 0 0114.08 0"/><path d="M1.42 9a16 16 0 0121.16 0"/><path d="M8.53 16.11a6 6 0 016.95 0"/><path d="M12 20h.01"/></svg>
+                  <span class="absolute -right-2 -top-2 grid h-7 w-7 place-items-center rounded-full bg-gradient-to-br from-cyan-400 to-emerald-500 text-sm font-bold text-slate-950">2</span>
+                </div>
+                <h3 class="mt-6 text-xl font-bold text-white">El dispositivo IoT procesa y transmite</h3>
+                <p class="mt-3 text-slate-400">
+                  El sensor envía la lectura a nuestra nube mediante red móvil o Wi-Fi.
+                  Sin servidores locales ni mantenimiento informático por tu parte.
+                </p>
+              </div>
+            </li>
+
+            <!-- Paso 3 -->
+            <li class="reveal relative">
+              <div class="flex flex-col items-center text-center">
+                <div class="relative z-10 grid h-20 w-20 place-items-center rounded-2xl border border-white/10 bg-slate-900 shadow-lg">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-9 w-9 text-emerald-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="2" width="14" height="20" rx="2"/><path d="M12 18h.01"/></svg>
+                  <span class="absolute -right-2 -top-2 grid h-7 w-7 place-items-center rounded-full bg-gradient-to-br from-cyan-400 to-emerald-500 text-sm font-bold text-slate-950">3</span>
+                </div>
+                <h3 class="mt-6 text-xl font-bold text-white">Alerta instantánea al móvil</h3>
+                <p class="mt-3 text-slate-400">
+                  Recibes un aviso push, SMS o llamada automática. Llegas a tiempo, arreglas la avería
+                  y <span class="font-semibold text-emerald-400">evitas la pérdida de género</span>.
+                </p>
+              </div>
+            </li>
+          </ol>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ BENEFICIOS ============ -->
+    <section id="beneficios" class="relative border-t border-white/5 py-20 sm:py-28">
+      <div class="pointer-events-none absolute top-1/3 left-1/2 h-[28rem] w-[28rem] -translate-x-1/2 rounded-full bg-emerald-500/10 blur-[140px]"></div>
+      <div class="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+        <div class="reveal mx-auto max-w-3xl text-center">
+          <span class="text-sm font-semibold uppercase tracking-widest text-emerald-400">Beneficios</span>
+          <h2 class="mt-4 text-3xl font-extrabold tracking-tight text-white sm:text-4xl">
+            Pensado para hostelería y sanidad
+          </h2>
+          <p class="mt-4 text-lg text-slate-400">
+            Protege tu inversión en género, cumple la normativa y duerme tranquilo.
+          </p>
+        </div>
+
+        <div class="mt-16 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+
+          <!-- Card 1 -->
+          <div class="reveal group rounded-2xl border border-white/10 bg-slate-900/50 p-7 transition hover:border-cyan-500/40 hover:bg-slate-900">
+            <div class="grid h-12 w-12 place-items-center rounded-xl bg-cyan-500/10 text-cyan-400 transition group-hover:bg-cyan-500/20">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/></svg>
+            </div>
+            <h3 class="mt-5 text-lg font-bold text-white">Alertas tempranas y accionables</h3>
+            <p class="mt-2 text-sm leading-relaxed text-slate-400">
+              Avisos en menos de 60 segundos por push, SMS, email o llamada. Umbrales personalizables por cámara y horario.
+            </p>
+          </div>
+
+          <!-- Card 2 -->
+          <div class="reveal group rounded-2xl border border-white/10 bg-slate-900/50 p-7 transition hover:border-emerald-500/40 hover:bg-slate-900">
+            <div class="grid h-12 w-12 place-items-center rounded-xl bg-emerald-500/10 text-emerald-400 transition group-hover:bg-emerald-500/20">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><path d="M14 2v6h6"/><path d="M9 13l2 2 4-4"/></svg>
+            </div>
+            <h3 class="mt-5 text-lg font-bold text-white">Informes sanitarios APPCC</h3>
+            <p class="mt-2 text-sm leading-relaxed text-slate-400">
+              Registro continuo y trazable de temperaturas listo para inspecciones. Genera informes automáticos en PDF para tu cumplimiento sanitario.
+            </p>
+          </div>
+
+          <!-- Card 3 -->
+          <div class="reveal group rounded-2xl border border-white/10 bg-slate-900/50 p-7 transition hover:border-cyan-500/40 hover:bg-slate-900">
+            <div class="grid h-12 w-12 place-items-center rounded-xl bg-cyan-500/10 text-cyan-400 transition group-hover:bg-cyan-500/20">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a1 1 0 000 1.4l1.6 1.6a1 1 0 001.4 0l3.77-3.77a6 6 0 01-7.94 7.94l-6.91 6.91a2.12 2.12 0 01-3-3l6.91-6.91a6 6 0 017.94-7.94l-3.76 3.76z"/></svg>
+            </div>
+            <h3 class="mt-5 text-lg font-bold text-white">Instalación limpia, sin obras</h3>
+            <p class="mt-2 text-sm leading-relaxed text-slate-400">
+              Sensor inalámbrico colocado en minutos. No interferimos en la refrigeración ni <span class="font-semibold text-slate-200">alteramos las garantías</span> de tus equipos.
+            </p>
+          </div>
+
+          <!-- Card 4 -->
+          <div class="reveal group rounded-2xl border border-white/10 bg-slate-900/50 p-7 transition hover:border-emerald-500/40 hover:bg-slate-900">
+            <div class="grid h-12 w-12 place-items-center rounded-xl bg-emerald-500/10 text-emerald-400 transition group-hover:bg-emerald-500/20">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="M9 12l2 2 4-4"/></svg>
+            </div>
+            <h3 class="mt-5 text-lg font-bold text-white">Menos mermas, más margen</h3>
+            <p class="mt-2 text-sm leading-relaxed text-slate-400">
+              Una sola avería evitada paga años de servicio. Recupera el control sobre tu stock y reduce pérdidas imprevistas.
+            </p>
+          </div>
+
+          <!-- Card 5 -->
+          <div class="reveal group rounded-2xl border border-white/10 bg-slate-900/50 p-7 transition hover:border-cyan-500/40 hover:bg-slate-900">
+            <div class="grid h-12 w-12 place-items-center rounded-xl bg-cyan-500/10 text-cyan-400 transition group-hover:bg-cyan-500/20">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="12" rx="2"/><path d="M8 20h8M12 16v4"/></svg>
+            </div>
+            <h3 class="mt-5 text-lg font-bold text-white">Panel en la nube</h3>
+            <p class="mt-2 text-sm leading-relaxed text-slate-400">
+              Consulta todas tus cámaras desde cualquier dispositivo, revisa históricos y gráficas, y controla varias sedes desde un único panel.
+            </p>
+          </div>
+
+          <!-- Card 6 -->
+          <div class="reveal group rounded-2xl border border-white/10 bg-slate-900/50 p-7 transition hover:border-emerald-500/40 hover:bg-slate-900">
+            <div class="grid h-12 w-12 place-items-center rounded-xl bg-emerald-500/10 text-emerald-400 transition group-hover:bg-emerald-500/20">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg>
+            </div>
+            <h3 class="mt-5 text-lg font-bold text-white">Soporte humano cercano</h3>
+            <p class="mt-2 text-sm leading-relaxed text-slate-400">
+              Acompañamiento en la puesta en marcha y soporte técnico real. Te ayudamos a configurar umbrales y avisos según tu operativa.
+            </p>
+          </div>
+
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ PRECIOS ============ -->
+    <section id="precios" class="relative border-t border-white/5 bg-slate-950 py-20 sm:py-28">
+      <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+        <div class="reveal mx-auto max-w-3xl text-center">
+          <span class="text-sm font-semibold uppercase tracking-widest text-cyan-400">Precios transparentes</span>
+          <h2 class="mt-4 text-3xl font-extrabold tracking-tight text-white sm:text-4xl">
+            Sin sorpresas. Todo en euros.
+          </h2>
+          <p class="mt-4 text-lg text-slate-400">
+            Una instalación única y una suscripción mensual que baja cuando creces.
+          </p>
+        </div>
+
+        <div class="mt-16 grid gap-8 lg:grid-cols-2 lg:items-stretch">
+
+          <!-- Kit Llave en Mano -->
+          <div class="reveal flex flex-col rounded-3xl border border-white/10 bg-slate-900/50 p-8 transition hover:border-white/20">
+            <div class="flex items-center gap-3">
+              <span class="grid h-11 w-11 place-items-center rounded-xl bg-white/5 text-slate-200">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z"/><path d="M3.27 6.96L12 12.01l8.73-5.05M12 22.08V12"/></svg>
+              </span>
+              <h3 class="text-xl font-bold text-white">Kit Llave en Mano</h3>
+            </div>
+            <p class="mt-3 text-sm text-slate-400">Hardware + puesta en marcha. Un pago único y listo.</p>
+            <div class="mt-6 flex items-end gap-1">
+              <span class="text-5xl font-extrabold tracking-tight text-white">150 €</span>
+              <span class="mb-1.5 text-sm text-slate-400">/ instalación única</span>
+            </div>
+            <ul class="mt-8 space-y-3 text-sm text-slate-300">
+              <li class="flex items-start gap-3"><svg class="mt-0.5 h-5 w-5 shrink-0 text-emerald-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>Sensor IoT inalámbrico</li>
+              <li class="flex items-start gap-3"><svg class="mt-0.5 h-5 w-5 shrink-0 text-emerald-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>Configuración y alta en la plataforma</li>
+              <li class="flex items-start gap-3"><svg class="mt-0.5 h-5 w-5 shrink-0 text-emerald-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>Instalación limpia, sin obras ni cables</li>
+              <li class="flex items-start gap-3"><svg class="mt-0.5 h-5 w-5 shrink-0 text-emerald-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>Sin alterar garantías del equipo</li>
+            </ul>
+            <a href="#contacto" class="mt-8 inline-flex w-full items-center justify-center rounded-xl border border-white/15 bg-white/5 px-6 py-3.5 text-sm font-semibold text-white transition hover:bg-white/10">
+              Solicitar instalación
+            </a>
+          </div>
+
+          <!-- Suscripción SaaS (destacado) -->
+          <div class="reveal relative flex flex-col rounded-3xl border border-cyan-500/40 bg-gradient-to-b from-cyan-500/10 to-slate-900/60 p-8 shadow-2xl shadow-cyan-500/10">
+            <span class="absolute -top-3 left-1/2 -translate-x-1/2 rounded-full bg-gradient-to-r from-cyan-500 to-emerald-500 px-4 py-1 text-xs font-bold uppercase tracking-wider text-slate-950">
+              El más recomendado
+            </span>
+            <div class="flex items-center gap-3">
+              <span class="grid h-11 w-11 place-items-center rounded-xl bg-cyan-500/15 text-cyan-300">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M18 10h-1.26A8 8 0 109 20h9a5 5 0 000-10z"/></svg>
+              </span>
+              <h3 class="text-xl font-bold text-white">Suscripción SaaS</h3>
+            </div>
+            <p class="mt-3 text-sm text-slate-400">Cloud, alertas y panel de control. Cancela cuando quieras.</p>
+
+            <div class="mt-6">
+              <div class="flex items-end gap-1">
+                <span class="text-5xl font-extrabold tracking-tight text-white">19,90 €</span>
+                <span class="mb-1.5 text-sm text-slate-400">/mes · 1ª nevera</span>
+              </div>
+              <p class="mt-3 inline-flex items-center gap-2 rounded-lg bg-emerald-500/10 px-3 py-1.5 text-sm font-semibold text-emerald-300">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19V5M5 12l7 7 7-7"/></svg>
+                14,90 €/mes a partir de la 2ª nevera
+              </p>
+            </div>
+
+            <ul class="mt-8 space-y-3 text-sm text-slate-200">
+              <li class="flex items-start gap-3"><svg class="mt-0.5 h-5 w-5 shrink-0 text-cyan-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>Monitorización en la nube 24/7</li>
+              <li class="flex items-start gap-3"><svg class="mt-0.5 h-5 w-5 shrink-0 text-cyan-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>Alertas ilimitadas (push, SMS, email)</li>
+              <li class="flex items-start gap-3"><svg class="mt-0.5 h-5 w-5 shrink-0 text-cyan-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>Informes sanitarios y APPCC en PDF</li>
+              <li class="flex items-start gap-3"><svg class="mt-0.5 h-5 w-5 shrink-0 text-cyan-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>Histórico de temperaturas y gráficas</li>
+              <li class="flex items-start gap-3"><svg class="mt-0.5 h-5 w-5 shrink-0 text-cyan-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>Usuarios y sedes sin coste extra</li>
+            </ul>
+
+            <a href="#contacto" class="mt-8 inline-flex w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-cyan-500 to-emerald-500 px-6 py-3.5 text-sm font-semibold text-slate-950 shadow-lg shadow-cyan-500/25 transition hover:brightness-110">
+              Solicitar Demo
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+            </a>
+          </div>
+        </div>
+
+        <p class="reveal mt-8 text-center text-sm text-slate-500">
+          Precios sin IVA. Sin permanencia. La suscripción incluye actualizaciones y soporte.
+        </p>
+      </div>
+    </section>
+
+    <!-- ============ CONTACTO ============ -->
+    <section id="contacto" class="relative border-t border-white/5 py-20 sm:py-28 bg-grid">
+      <div class="pointer-events-none absolute -bottom-32 left-1/4 h-[28rem] w-[28rem] rounded-full bg-cyan-500/10 blur-[130px]"></div>
+      <div class="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+        <div class="grid gap-12 lg:grid-cols-2 lg:gap-16">
+
+          <!-- Texto -->
+          <div class="reveal">
+            <span class="text-sm font-semibold uppercase tracking-widest text-emerald-400">Solicita tu demo</span>
+            <h2 class="mt-4 text-3xl font-extrabold tracking-tight text-white sm:text-4xl">
+              Descubre cuánto puedes ahorrar
+            </h2>
+            <p class="mt-4 text-lg text-slate-400">
+              Cuéntanos tu caso y te preparamos una demo personalizada sin compromiso. Normalmente respondemos en menos de 24 h.
+            </p>
+
+            <ul class="mt-8 space-y-5">
+              <li class="flex items-start gap-4">
+                <span class="grid h-11 w-11 shrink-0 place-items-center rounded-xl bg-white/5 text-cyan-400">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07 19.5 19.5 0 01-6-6 19.79 19.79 0 01-3.07-8.67A2 2 0 014.11 2h3a2 2 0 012 1.72c.13.96.36 1.9.7 2.81a2 2 0 01-.45 2.11L8.09 9.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.9.34 1.85.57 2.81.7A2 2 0 0122 16.92z"/></svg>
+                </span>
+                <div>
+                  <p class="font-semibold text-white">Teléfono</p>
+                  <p class="text-sm text-slate-400">+34 600 000 000</p>
+                </div>
+              </li>
+              <li class="flex items-start gap-4">
+                <span class="grid h-11 w-11 shrink-0 place-items-center rounded-xl bg-white/5 text-cyan-400">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="M22 6l-10 7L2 6"/></svg>
+                </span>
+                <div>
+                  <p class="font-semibold text-white">Email</p>
+                  <p class="text-sm text-slate-400">hola@friopulse.com</p>
+                </div>
+              </li>
+              <li class="flex items-start gap-4">
+                <span class="grid h-11 w-11 shrink-0 place-items-center rounded-xl bg-white/5 text-cyan-400">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
+                </span>
+                <div>
+                  <p class="font-semibold text-white">Cobertura</p>
+                  <p class="text-sm text-slate-400">España · Portugal · Unión Europea</p>
+                </div>
+              </li>
+            </ul>
+          </div>
+
+          <!-- Formulario -->
+          <div class="reveal">
+            <div class="rounded-3xl border border-white/10 bg-slate-900/70 p-6 shadow-2xl shadow-black/40 backdrop-blur sm:p-8">
+              <form id="lead-form" class="space-y-5" novalidate>
+                <div class="grid gap-5 sm:grid-cols-2">
+                  <div>
+                    <label for="nombre" class="mb-1.5 block text-sm font-medium text-slate-300">Nombre completo <span class="text-cyan-400">*</span></label>
+                    <input type="text" id="nombre" name="nombre" required autocomplete="name"
+                      class="w-full rounded-xl border border-white/10 bg-slate-950/60 px-4 py-3 text-sm text-white placeholder-slate-500 outline-none transition focus:border-cyan-500 focus:ring-2 focus:ring-cyan-500/30"
+                      placeholder="Tu nombre" />
+                  </div>
+                  <div>
+                    <label for="empresa" class="mb-1.5 block text-sm font-medium text-slate-300">Empresa</label>
+                    <input type="text" id="empresa" name="empresa" autocomplete="organization"
+                      class="w-full rounded-xl border border-white/10 bg-slate-950/60 px-4 py-3 text-sm text-white placeholder-slate-500 outline-none transition focus:border-cyan-500 focus:ring-2 focus:ring-cyan-500/30"
+                      placeholder="Restaurante, hotel, clínica..." />
+                  </div>
+                </div>
+
+                <div class="grid gap-5 sm:grid-cols-2">
+                  <div>
+                    <label for="email" class="mb-1.5 block text-sm font-medium text-slate-300">Email <span class="text-cyan-400">*</span></label>
+                    <input type="email" id="email" name="email" required autocomplete="email"
+                      class="w-full rounded-xl border border-white/10 bg-slate-950/60 px-4 py-3 text-sm text-white placeholder-slate-500 outline-none transition focus:border-cyan-500 focus:ring-2 focus:ring-cyan-500/30"
+                      placeholder="tu@email.com" />
+                  </div>
+                  <div>
+                    <label for="telefono" class="mb-1.5 block text-sm font-medium text-slate-300">Teléfono</label>
+                    <input type="tel" id="telefono" name="telefono" autocomplete="tel"
+                      class="w-full rounded-xl border border-white/10 bg-slate-950/60 px-4 py-3 text-sm text-white placeholder-slate-500 outline-none transition focus:border-cyan-500 focus:ring-2 focus:ring-cyan-500/30"
+                      placeholder="+34 600 000 000" />
+                  </div>
+                </div>
+
+                <div>
+                  <label for="neveras" class="mb-1.5 block text-sm font-medium text-slate-300">¿Cuántas neveras/congeladores quieres monitorizar?</label>
+                  <select id="neveras" name="neveras"
+                    class="w-full rounded-xl border border-white/10 bg-slate-950/60 px-4 py-3 text-sm text-white outline-none transition focus:border-cyan-500 focus:ring-2 focus:ring-cyan-500/30">
+                    <option value="1">1 unidad</option>
+                    <option value="2-3">2 – 3 unidades</option>
+                    <option value="4-9">4 – 9 unidades</option>
+                    <option value="10+">10 o más</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label for="mensaje" class="mb-1.5 block text-sm font-medium text-slate-300">Mensaje</label>
+                  <textarea id="mensaje" name="mensaje" rows="4"
+                    class="w-full resize-none rounded-xl border border-white/10 bg-slate-950/60 px-4 py-3 text-sm text-white placeholder-slate-500 outline-none transition focus:border-cyan-500 focus:ring-2 focus:ring-cyan-500/30"
+                    placeholder="Cuéntanos brevemente qué necesitas..."></textarea>
+                </div>
+
+                <label class="flex items-start gap-3 text-xs text-slate-400">
+                  <input type="checkbox" id="privacidad" name="privacidad" required
+                    class="mt-0.5 h-4 w-4 shrink-0 rounded border-white/20 bg-slate-950 text-cyan-500 focus:ring-cyan-500 focus:ring-offset-slate-900" />
+                  <span>Acepto la <a href="#" class="font-medium text-cyan-400 hover:underline">política de privacidad</a> y el tratamiento de mis datos para recibir información comercial.</span>
+                </label>
+
+                <button type="submit" id="submit-btn"
+                  class="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-cyan-500 to-emerald-500 px-6 py-3.5 text-sm font-semibold text-slate-950 shadow-lg shadow-cyan-500/25 transition hover:brightness-110 focus:outline-none focus:ring-2 focus:ring-cyan-400 focus:ring-offset-2 focus:ring-offset-slate-900 disabled:cursor-not-allowed disabled:opacity-70">
+                  <span id="submit-text">Solicitar Demo</span>
+                  <svg id="submit-spinner" class="hidden h-4 w-4 animate-spin" viewBox="0 0 24 24" fill="none"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/></svg>
+                </button>
+
+                <!-- Mensaje de estado -->
+                <div id="form-status" class="hidden items-start gap-3 rounded-xl border px-4 py-3 text-sm" role="status" aria-live="polite"></div>
+              </form>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- ============ FOOTER ============ -->
+  <footer class="border-t border-white/10 bg-slate-950">
+    <div class="mx-auto max-w-7xl px-4 py-14 sm:px-6 lg:px-8">
+      <div class="grid gap-10 md:grid-cols-2 lg:grid-cols-4">
+
+        <!-- Marca -->
+        <div class="lg:col-span-2">
+          <a href="#inicio" class="flex items-center gap-2.5">
+            <span class="grid h-10 w-10 place-items-center rounded-xl bg-gradient-to-br from-cyan-400 to-emerald-500">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-slate-950" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M3 15 L7 8 L11 14 L15 5 L21 15"/></svg>
+            </span>
+            <span class="text-xl font-extrabold tracking-tight text-white">Frío<span class="text-cyan-400">Pulse</span></span>
+          </a>
+          <p class="mt-5 max-w-sm text-sm leading-relaxed text-slate-400">
+            Monitorización IoT de cámaras frigoríficas y congeladores para hostelería y sanidad.
+            Protegemos tu género con alertas en tiempo real.
+          </p>
+        </div>
+
+        <!-- Producto -->
+        <div>
+          <h4 class="text-sm font-semibold uppercase tracking-wider text-white">Producto</h4>
+          <ul class="mt-4 space-y-3 text-sm">
+            <li><a href="#como-funciona" class="text-slate-400 transition hover:text-cyan-400">Cómo funciona</a></li>
+            <li><a href="#beneficios" class="text-slate-400 transition hover:text-cyan-400">Beneficios</a></li>
+            <li><a href="#precios" class="text-slate-400 transition hover:text-cyan-400">Precios</a></li>
+            <li><a href="#contacto" class="text-slate-400 transition hover:text-cyan-400">Solicitar demo</a></li>
+          </ul>
+        </div>
+
+        <!-- Legal -->
+        <div>
+          <h4 class="text-sm font-semibold uppercase tracking-wider text-white">Empresa</h4>
+          <ul class="mt-4 space-y-3 text-sm">
+            <li><a href="#" class="text-slate-400 transition hover:text-cyan-400">Aviso legal</a></li>
+            <li><a href="#" class="text-slate-400 transition hover:text-cyan-400">Política de privacidad</a></li>
+            <li><a href="#" class="text-slate-400 transition hover:text-cyan-400">Cookies</a></li>
+            <li><a href="mailto:hola@friopulse.com" class="text-slate-400 transition hover:text-cyan-400">hola@friopulse.com</a></li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="mt-12 flex flex-col items-center justify-between gap-4 border-t border-white/10 pt-8 sm:flex-row">
+        <p class="text-sm text-slate-500">© <span id="year">2026</span> FríoPulse. Todos los derechos reservados.</p>
+        <p class="text-sm text-slate-500">Hecho con ❄️ para hostelería y sanidad.</p>
+      </div>
+    </div>
+  </footer>
+
+  <!-- ============ SCRIPTS ============ -->
+  <script>
+    (function () {
+      'use strict';
+
+      /* Año dinámico */
+      document.getElementById('year').textContent = new Date().getFullYear();
+
+      /* ----- Navbar: fondo al hacer scroll ----- */
+      const navbar = document.getElementById('navbar');
+      const onScroll = () => {
+        if (window.scrollY > 16) {
+          navbar.classList.add('bg-slate-950/80', 'backdrop-blur', 'border-white/10', 'shadow-lg', 'shadow-black/20');
+        } else {
+          navbar.classList.remove('bg-slate-950/80', 'backdrop-blur', 'border-white/10', 'shadow-lg', 'shadow-black/20');
+        }
+      };
+      onScroll();
+      window.addEventListener('scroll', onScroll, { passive: true });
+
+      /* ----- Menú móvil ----- */
+      const menuBtn = document.getElementById('menu-btn');
+      const mobileMenu = document.getElementById('mobile-menu');
+      const iconOpen = document.getElementById('icon-open');
+      const iconClose = document.getElementById('icon-close');
+      const toggleMenu = (open) => {
+        const isOpen = open ?? mobileMenu.classList.contains('hidden');
+        mobileMenu.classList.toggle('hidden', !isOpen);
+        iconOpen.classList.toggle('hidden', isOpen);
+        iconClose.classList.toggle('hidden', !isOpen);
+        menuBtn.setAttribute('aria-expanded', String(isOpen));
+      };
+      menuBtn.addEventListener('click', () => toggleMenu());
+      mobileMenu.querySelectorAll('a').forEach((a) => a.addEventListener('click', () => toggleMenu(false)));
+
+      /* ----- Reveal on scroll ----- */
+      const revealEls = document.querySelectorAll('.reveal');
+      if ('IntersectionObserver' in window) {
+        const io = new IntersectionObserver((entries) => {
+          entries.forEach((entry) => {
+            if (entry.isIntersecting) {
+              entry.target.classList.add('is-visible');
+              io.unobserve(entry.target);
+            }
+          });
+        }, { threshold: 0.12, rootMargin: '0px 0px -40px 0px' });
+        revealEls.forEach((el) => io.observe(el));
+      } else {
+        revealEls.forEach((el) => el.classList.add('is-visible'));
+      }
+
+      /* ----- Formulario: simulación de envío ----- */
+      const form = document.getElementById('lead-form');
+      const statusBox = document.getElementById('form-status');
+      const submitBtn = document.getElementById('submit-btn');
+      const submitText = document.getElementById('submit-text');
+      const spinner = document.getElementById('submit-spinner');
+
+      const showStatus = (type, message) => {
+        const styles = {
+          success: ['border-emerald-500/30', 'bg-emerald-500/10', 'text-emerald-300'],
+          error: ['border-red-500/30', 'bg-red-500/10', 'text-red-300']
+        };
+        statusBox.className = 'flex items-start gap-3 rounded-xl border px-4 py-3 text-sm ' + (styles[type] || []).join(' ');
+        statusBox.innerHTML = message;
+        statusBox.classList.remove('hidden');
+      };
+
+      form.addEventListener('submit', (e) => {
+        e.preventDefault();
+
+        const nombre = form.nombre.value.trim();
+        const email = form.email.value.trim();
+        const privacidad = form.privacidad.checked;
+        const emailOk = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+
+        if (!nombre || !emailOk || !privacidad) {
+          showStatus('error',
+            '<svg class="mt-0.5 h-5 w-5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 8v4M12 16h.01"/></svg>' +
+            '<span>Revisa los campos obligatorios: nombre, un email válido y la aceptación de privacidad.</span>');
+          return;
+        }
+
+        /* Estado de carga */
+        submitBtn.disabled = true;
+        submitText.textContent = 'Enviando...';
+        spinner.classList.remove('hidden');
+        statusBox.classList.add('hidden');
+
+        /* Simulación de petición al servidor */
+        setTimeout(() => {
+          submitBtn.disabled = false;
+          submitText.textContent = 'Solicitar Demo';
+          spinner.classList.add('hidden');
+          showStatus('success',
+            '<svg class="mt-0.5 h-5 w-5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 11-5.93-9.14"/><path d="M22 4L12 14.01l-3-3"/></svg>' +
+            '<span>¡Gracias, ' + nombre.replace(/</g, '&lt;') + '! Hemos recibido tu solicitud y te contactaremos en menos de 24 h.</span>');
+          form.reset();
+        }, 1400);
+      });
+    })();
+  </script>
+</body>
+</html>
